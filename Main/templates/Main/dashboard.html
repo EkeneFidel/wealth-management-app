@@ -1,0 +1,122 @@
+{% extends 'Main/base.html'%}
+{% block title%}Home{% endblock%}
+{% block content %}
+
+<br>
+{% if investments %}
+<div class="row justify-content-between">
+   <div class="col-5">
+      <div class="col-md">
+         <div class="card text-center text-dark mb-3">
+
+            <div class="card-body">
+               <h2 class="card-title">Welcome Back, {{user.first_name|title}}!</h2>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="col-5">
+      <div class="col-md">
+         <div class="card text-center text-dark mb-3">
+
+            <div class="card-body">
+               <h2 class="card-title">Available to invest: ${{ investments.get_available_balance }}</h2>
+            </div>
+         </div>
+      </div>
+   </div>
+
+</div>
+
+
+<br>
+<table class="table">
+   <thead>
+      <tr>
+         <th scope="col">Asset Class</th>
+         <th scope="col">Investment Market</th>
+         <th scope="col">Amount</th>
+         <th scope="col">Mass</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <th scope="row">Savings</th>
+         <td>Mark</td>
+         <td>Otto</td>
+         <td>@mdo</td>
+      </tr>
+      <tr>
+         <th scope="row"></th>
+         <td>Jacob</td>
+         <td>Thornton</td>
+         <td>@fat</td>
+      </tr>
+      <tr>
+         <th scope="row"></th>
+         <td>Larry</td>
+         <td>the Bird</td>
+         <td>@twitter</td>
+      </tr>
+   </tbody>
+   <tbody>
+      <tr>
+         <th scope="row">Insurance</th>
+         <td>Mark</td>
+         <td>Otto</td>
+         <td>@mdo</td>
+      </tr>
+      <tr>
+         <th scope="row"></th>
+         <td>Jacob</td>
+         <td>Thornton</td>
+         <td>@fat</td>
+      </tr>
+      <tr>
+         <th scope="row"></th>
+         <td>Larry</td>
+         <td>the Bird</td>
+         <td>@twitter</td>
+      </tr>
+   </tbody>
+   <tbody>
+      <tr>
+         <th scope="row">Investments</th>
+         <td>Mark</td>
+         <td>Otto</td>
+         <td>@mdo</td>
+      </tr>
+      <tr>
+         <th scope="row"></th>
+         <td>Jacob</td>
+         <td>Thornton</td>
+         <td>@fat</td>
+      </tr>
+      <tr>
+         <th scope="row"></th>
+         <td>Larry</td>
+         <td>the Bird</td>
+         <td>@twitter</td>
+      </tr>
+   </tbody>
+</table>
+{% else %}
+<div class="row">
+   <div class="col-4">
+      <div class="col-md">
+         <div class="card text-center text-dark mb-3">
+
+            <div class="card-body">
+               <h2 class="card-title">Welcome Back, {{user.first_name|title}}!</h2>
+               <p class="mb-0">Investment Dashboard</p>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<a class="btn btn-success btn-lg mt-4" href="{% url 'investment_url' %}" type="submit">Create Investment Goals</a>
+{% endif %}
+
+
+
+{% endblock %}

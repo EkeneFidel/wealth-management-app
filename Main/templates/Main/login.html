@@ -1,0 +1,24 @@
+{% extends 'Main/base.html'%}
+{% block title%}Login{% endblock%}
+{% block content %}
+
+<div class="row">
+   <div class="col-sm-4"></div>
+   <div class="col-sm-4">
+
+
+      <form class="form-signin" id="LoginForm" method="post" action="{% url 'login_url'  %}">
+         {% csrf_token %}
+         <h1 class="form-signin-heading">Please sign in</h1>
+         <label for="username" class="sr-only">Username:</label>
+         <input type="text" name="username" placeholder="Username" class="form-control" required><br>
+         <label for="password" class="sr-only">Password:</label>
+         <input type="password" name="password" placeholder="Password" class="form-control" required><br>
+         <input class="btn btn-lg btn-success btn-block" value="Submit" type="submit" />
+      </form>
+
+
+   </div>
+</div>
+
+{% endblock %}

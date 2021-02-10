@@ -1,0 +1,49 @@
+{% extends 'Main/base.html'%}
+{% block title%}Home{% endblock%}
+{% block content %}
+
+
+<!-- {% if messages %}
+<ul class="messages">
+   {% for message in messages %}
+   <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+   {% endfor %}
+</ul>
+{% endif %} -->
+
+<div class="form-group row pb-4">
+   <div class="col-sm-6 col-lg-12 col-xxl-6 d-flex">
+      <div class="card illustration flex-fill">
+         <div class="card-body p-0 d-flex flex-fill">
+            <div class="row no-gutters w-100">
+               <div class="col p-4">
+                  <div class="illustration-text p-3 m-1">
+                     <h2 class="illustration-text">Welcome Back, {{user.first_name|title}}!</h2>
+                     <p class="mb-0">Investment Dashboard</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="col-sm-6 col-lg-12 col-xxl-6 d-flex">
+      <div class="card illustration flex-fill">
+         <div class="card-body p-0 d-flex flex-fill">
+            <div class="row no-gutters w-100">
+               <div class="col p-4">
+                  <div class="illustration-text p-3 m-1">
+                     <h2 class="illustration-text">Available to invest: ${{ investments.get_available_balance() }}
+                     </h2>
+                  </div>
+               </div>
+
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+
+
+{% endblock %}
