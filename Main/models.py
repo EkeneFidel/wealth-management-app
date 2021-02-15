@@ -85,7 +85,7 @@ class Savings(models.Model):
    created_at = models.DateTimeField(auto_now_add=True, null=True)
    investmentMarkets = models.CharField(max_length=50, choices=INVESTMENT_MARKETS)
    amount = models.DecimalField(decimal_places=2, max_digits=10)
-   percentage = fields.IntegerRangeField(min_value=1, max_value=100)
+   percentage = fields.IntegerRangeField(min_value=1, max_value=100, null=True)
   
    @property
    def get_savings_percentage(self):
@@ -114,7 +114,7 @@ class Insurances(models.Model):
    created_at = models.DateTimeField(auto_now_add=True, null=True)
    investmentMarkets = models.CharField(max_length=50, choices=INVESTMENT_MARKETS)
    amount = models.DecimalField(decimal_places=2, max_digits=10)
-   percentage = fields.IntegerRangeField(min_value=1, max_value=100)  
+   percentage = fields.IntegerRangeField(min_value=1, max_value=100, null=True)  
 
    class Meta:
       verbose_name = 'Insurance'
@@ -139,7 +139,7 @@ class Investments(models.Model):
    created_at = models.DateTimeField(auto_now_add=True, null=True)
    investmentMarkets = models.CharField(max_length=50, choices=INVESTMENT_MARKETS)
    amount = models.DecimalField(decimal_places=2, max_digits=10)
-   percentage = fields.IntegerRangeField(min_value=1, max_value=100)
+   percentage = fields.IntegerRangeField(min_value=1, max_value=100, null=True)
 
    class Meta:
       verbose_name = 'Investment'
