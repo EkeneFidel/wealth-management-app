@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '77(ksjk1n&_i$f$0^m_f!_-=6iye1wu1$mn6p26r4)n2gy457u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['wealth-management-app.herokuapp.com']
 
