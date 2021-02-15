@@ -158,6 +158,7 @@ def addSavingsView(request):
       if form1.is_valid():
          saving = form1.save(commit=False)
          saving.user = request.user
+         saving.percentage = percentage
          saving.save()
          savings = Savings.objects.filter(user=request.user)
          percentage = math.ceil((float(amount)/float(investmentinfo.savings_account_balance))*100.00)
@@ -224,6 +225,7 @@ def addInvestmentView(request):
       if form2.is_valid():
          invest = form2.save(commit=False)
          invest.user = request.user
+         invest.percentage = percentage
          invest.save()
          investments = Investments.objects.filter(user=request.user)
          percentage = math.ceil((float(amount)/float(investmentinfo.investment_account_balance))*100.00)
@@ -286,9 +288,10 @@ def addInsuranceView(request):
 
       username = request.user.username
       if form3.is_valid():
-         invest = form3.save(commit=False)
-         invest.user = request.user
-         invest.save()
+         insure = form3.save(commit=False)
+         insure.user = request.user
+         insure.percentage = percentage
+         insure.save()
          insurances = Insurances.objects.filter(user=request.user)
          percentage = math.ceil((float(amount)/float(investmentinfo.insurance_account_balance))*100.00)
          for object in insurances:
