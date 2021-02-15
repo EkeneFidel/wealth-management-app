@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import fields
-from .models import InvestmentInfo
+from .models import InvestmentInfo, Savings, Insurances, Investments
 
 
 
@@ -33,5 +33,24 @@ class InvestmentForm(forms.ModelForm):
    class Meta:
       model = InvestmentInfo
       fields = ('monthly_income', 'monthly_expenses', 'savings_account_percentage', 'insurance_account_percentage', 'investment_account_percentage')
+
+
+class ShowSavingForm(forms.ModelForm):
+   class Meta:
+      model = Savings
+      fields = ('investmentMarkets', 'amount')
+
+      
+class ShowInsuranceForm(forms.ModelForm):
+   class Meta:
+      model = Insurances
+      fields = ('investmentMarkets', 'amount')
+
+
+class ShowInvestmentForm(forms.ModelForm):
+   class Meta:
+      model = Investments
+      fields = ('investmentMarkets', 'amount')
+
 
 

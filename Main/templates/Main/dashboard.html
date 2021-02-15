@@ -1,4 +1,5 @@
 {% extends 'Main/base.html'%}
+{% load static %}
 {% block title%}Home{% endblock%}
 {% block content %}
 
@@ -40,67 +41,54 @@
       </tr>
    </thead>
    <tbody>
+      {% for saving in savings %}
       <tr>
          <th scope="row">Savings</th>
-         <td>Mark</td>
-         <td>Otto</td>
-         <td>@mdo</td>
+         <td>{{saving.investmentMarkets}}</td>
+         <td>${{saving.amount}}</td>
+         <td>{{saving.percentage}}%</td>
       </tr>
-      <tr>
-         <th scope="row"></th>
-         <td>Jacob</td>
-         <td>Thornton</td>
-         <td>@fat</td>
-      </tr>
-      <tr>
-         <th scope="row"></th>
-         <td>Larry</td>
-         <td>the Bird</td>
-         <td>@twitter</td>
-      </tr>
+      {% endfor %}
    </tbody>
    <tbody>
+      {% for insurance in insurance %}
       <tr>
          <th scope="row">Insurance</th>
-         <td>Mark</td>
-         <td>Otto</td>
-         <td>@mdo</td>
+         <td>{{insurance.investmentMarkets}}</td>
+         <td>${{insurance.amount}}</td>
+         <td>{{insurance.percentage}}%</td>
       </tr>
-      <tr>
-         <th scope="row"></th>
-         <td>Jacob</td>
-         <td>Thornton</td>
-         <td>@fat</td>
-      </tr>
-      <tr>
-         <th scope="row"></th>
-         <td>Larry</td>
-         <td>the Bird</td>
-         <td>@twitter</td>
-      </tr>
+      {% endfor %}
    </tbody>
    <tbody>
+      {% for invest in invest %}
       <tr>
-         <th scope="row">Investments</th>
-         <td>Mark</td>
-         <td>Otto</td>
-         <td>@mdo</td>
+         <th scope="row">Investment</th>
+         <td>{{invest.investmentMarkets}}</td>
+         <td>${{invest.amount}}</td>
+         <td>{{invest.percentage}}%</td>
       </tr>
+      {% endfor %}
+   </tbody>
+   <br>
+   <br>
+   <tbody>
       <tr>
-         <th scope="row"></th>
-         <td>Jacob</td>
-         <td>Thornton</td>
-         <td>@fat</td>
-      </tr>
-      <tr>
-         <th scope="row"></th>
-         <td>Larry</td>
-         <td>the Bird</td>
-         <td>@twitter</td>
+         <th scope="row">Total</th>
+         <td></td>
+         <td>${{investments.get_total_amount}}</td>
+         <td></td>
       </tr>
    </tbody>
 </table>
+
+<a class="btn btn-secondary btn-lg mt-4" href="{% url 'add_savings_url' %}" type="submit">Add Savings</a>
+<a class="btn btn-secondary btn-lg mt-4" href="{% url 'add_investments_url' %}" type="submit">Add Investments</a>
+<a class="btn btn-secondary btn-lg mt-4" href="{% url 'add_insurances_url' %}" type="submit">Add Insurances</a>
+
 {% else %}
+
+
 <div class="row">
    <div class="col-4">
       <div class="col-md">
@@ -120,3 +108,35 @@
 
 
 {% endblock %}
+{% block extra_js %}
+
+<script>
+   $(document).ready(function () {
+      $(document).on("click", ".editable", function () {
+         var value = $(this).text();
+         var input = "<input type='text' class='input-data' value='" + value + "' class='form-control'> ";
+         $(this).html(input);
+         $(this).removeClass("editable")
+      });
+
+      $(document).on("blur", ".input-data", function () {
+         var value = $(this).val();
+         var td = $(this).parent("td");
+         $(this).remove();
+         td.html(value);
+         td.addClass("editable");
+      })
+
+         (document).on("keypress", ".input-data", function (e) {
+            var key = e.code;
+            if (key == Enter) {
+               var value = $(this).val();
+               var td = $(this).parent("td");
+               $(this).remove();
+               td.html(value);
+               td.addClass("editable");
+            }
+         })
+   })
+</script>
+{% endblock extra_js %}
