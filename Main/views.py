@@ -138,7 +138,7 @@ def addSavingsView(request):
       total_savings += float(amount)
       print(total_savings, investmentinfo.savings_account_balance, amount)
       if total_savings > investmentinfo.savings_account_balance:
-         messages.error(request, "Amount is more than total savings")
+         messages.error(request, "Amount exceeds current balance for investments")
          return render(request,  "Main/add_savings.html", context) 
 
 
@@ -150,7 +150,7 @@ def addSavingsView(request):
       total_percentage += percentage
       print(total_percentage, investmentinfo.savings_account_percentage, percentage)
       if total_percentage > investmentinfo.savings_account_percentage:
-         messages.error(request, "The percentage is more than total percentage for savings")
+         messages.error(request, "Percentage exceeds remaining percentage for investments")
          return render(request,  "Main/add_savings.html", context) 
 
 
@@ -158,6 +158,7 @@ def addSavingsView(request):
       if form1.is_valid():
          saving = form1.save(commit=False)
          saving.user = request.user
+         saving.percentage = percentage
          saving.save()
          savings = Savings.objects.filter(user=request.user)
          percentage = math.ceil((float(amount)/float(investmentinfo.savings_account_balance))*100.00)
@@ -208,7 +209,7 @@ def addInvestmentView(request):
          return render(request,  "Main/add_investments.html", context) 
 
 
-      percentage = math.ceil((float(amount)/float(investmentinfo.savings_account_balance))*100.00)
+      percentage = math.ceil((float(amount)/float(investmentinfo.investment_account_balance))*100.00)
       total_percentage = 0
       for investment in investments:
          total_percentage += investment.percentage
@@ -216,7 +217,7 @@ def addInvestmentView(request):
       total_percentage += float(percentage)
       
       if total_percentage > investmentinfo.investment_account_percentage:
-         messages.error(request, "Percentage exceeds remaining percentage for investments")
+         messages.error(request, "Percentage exceeds remaining percentage for Investments")
          return render(request,  "Main/add_investments.html", context) 
 
 
@@ -224,6 +225,7 @@ def addInvestmentView(request):
       if form2.is_valid():
          invest = form2.save(commit=False)
          invest.user = request.user
+         invest.percentage = percentage
          invest.save()
          investments = Investments.objects.filter(user=request.user)
          percentage = math.ceil((float(amount)/float(investmentinfo.investment_account_balance))*100.00)
@@ -273,7 +275,7 @@ def addInsuranceView(request):
          return render(request,  "Main/add_insurances.html", context) 
 
 
-      percentage = request.POST['percentage']
+      percentage = math.ceil((float(amount)/float(investmentinfo.insurance_account_balance))*100.00)
       total_percentage = 0
       for insurance in insurances:
          total_percentage += insurance.percentage
@@ -286,9 +288,10 @@ def addInsuranceView(request):
 
       username = request.user.username
       if form3.is_valid():
-         invest = form3.save(commit=False)
-         invest.user = request.user
-         invest.save()
+         insure = form3.save(commit=False)
+         insure.user = request.user
+         insure.percentage = percentage
+         insure.save()
          insurances = Insurances.objects.filter(user=request.user)
          percentage = math.ceil((float(amount)/float(investmentinfo.insurance_account_balance))*100.00)
          for object in insurances:
