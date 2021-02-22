@@ -126,7 +126,17 @@ def createInvestmetView(request):
       form = InvestmentForm()
       return render(request, "Main/create_investment.html", {'form':form})
    else:
+      form = InvestmentForm(request.POST)
       username = request.POST.get('username')
+      monthly_income = request.POST.get('monthly_income')
+      monthly_income = float(monthly_income)
+
+      monthly_expenses = request.POST.get('monthly_expenses')
+      monthly_expenses = float(monthly_expenses)
+      if monthly_expenses > monthly_income:
+         messages.error(request, "Monthly Income Is More Than Monthly Expenses")
+         return render(request, "Main/create_investment.html", {'form':form})
+
       savings_percentage = 50
       insurance_percentage = 25
       investment_percentage = 25
@@ -357,10 +367,22 @@ def investment_info_edit(request, id):
       return render(request, "Main/edit_investment_goals.html", context)
    else:
       username = request.POST.get('username')
+      monthly_income = request.POST.get('monthly_income')
+      monthly_expenses = request.POST.get('monthly_expenses')
+      savings_account_percentage = request.POST.get('savings_account_percentage')
+      insurance_account_percentage = request.POST.get('insurance_account_percentage')
+      investment_account_percentage = request.POST.get('investment_account_percentage')
       form = EditInvestmentForm(request.POST, instance=investments) 
       if form.is_valid():
          messages.success(request, "Updated successfully")
-         form.save()
+         investment = form.save(commit=False)
+         investment.user = request.user
+         investment.savings_account_percentage = savings_account_percentage
+         investment.insurance_account_percentage = insurance_account_percentage
+         investment.investment_account_percentage = investment_account_percentage
+         investment.monthly_expenses = monthly_expenses
+         investment.monthly_income = monthly_income
+         investment.save()
       return redirect(('/dashboard/'+ request.user.username + '/'))     
 
 
