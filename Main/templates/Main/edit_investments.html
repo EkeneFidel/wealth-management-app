@@ -1,13 +1,19 @@
 {% extends 'Main/base.html'%}
 {% load crispy_forms_tags %}
-{% block title%}Add Investments{% endblock%}
+{% block title%}Edit Investment{% endblock%}
 {% block content %}
+<nav aria-label="breadcrumb">
+   <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit Investment</li>
+   </ol>
+</nav>
 <div class="row">
    <div class="col-sm-4"></div>
    <div class="col-sm-4">
       <form method="post">
          {% csrf_token %}
-         <h1 class="form-signin-heading">Add Investments</h1>
+         <h1 class="form-signin-heading">Edit Investment</h1>
          <div class='row'>
             <div class='col'>{{ form2|crispy }}</div>
             <button class="btn btn-success btn-lg mt-4" href="{% url 'dashboard_url' %}" type="submit">Submit</button>

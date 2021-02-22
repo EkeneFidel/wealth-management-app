@@ -8,11 +8,12 @@ from django.template import context, loader, RequestContext
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 import math
+import json
 
 
 
-from .forms import UserForm, InvestmentForm, ShowInvestmentForm, ShowSavingForm, ShowInsuranceForm
-from .models import InvestmentInfo, Savings, Insurances, Investments
+from .forms import UserForm, InvestmentForm, ShowInvestmentForm, ShowSavingForm, ShowInsuranceForm, EditInvestmentForm
+from .models import InvestmentInfo, Savings, Insurances, Investments, SubCategory, Category, AddMarket
 
 
 # Create your views here.
@@ -70,16 +71,47 @@ def dashboardView(request):
    savings = Savings.objects.filter(user=request.user)
    invest = Investments.objects.filter(user=request.user)
    insurance = Insurances.objects.filter(user=request.user)
-
    
+   add_market = AddMarket.objects.filter(user=request.user)
+   categories = Category.objects.all()
+   sub_categories = SubCategory.objects.all()
+   cats = []
+   for category in categories:
+      cats.append(category)
+   
+   # count = AddMarket.objects.filter(user=request.user).count()
+   # if count < 3:
+   #    user_a = request.user
+   #    amount_a = 5000
+   #    percentage_a = 30
+   #    category_a = Category.objects.get(id=1)
+   #    sub_category_a = SubCategory.objects.get(id=1)
+
+   #    a = AddMarket.objects.create(user=user_a, amount=amount_a, percentage=percentage_a, category=category_a, sub_category=sub_category_a )
+   #    a.save()
+   #    add_market = AddMarket.objects.filter(user=request.user)
+   #    count = AddMarket.objects.filter(user=request.user).count()
+   #    print(count)
+   # else:
+   #    pass
+   arr_length = len(cats)
    context = {
       'investments': investments,
       'savings': savings,
       'invest': invest,
-      'insurance': insurance  
+      'insurance': insurance,
+      'add_market':add_market,
+      'categories':categories,
+      'sub_categories':sub_categories,
+      'cats':cats,
+      'arr_length':arr_length
+      # 'count':count    
       
    }
    return render(request, 'Main/dashboard.html', context)
+
+
+   # ------------------------------------------------------------------------------------------------------------
 
 
 @login_required
@@ -95,12 +127,71 @@ def createInvestmetView(request):
       return render(request, "Main/create_investment.html", {'form':form})
    else:
       username = request.POST.get('username')
+      savings_percentage = 50
+      insurance_percentage = 25
+      investment_percentage = 25
+
       form = InvestmentForm(request.POST)
       if form.is_valid():
          investment = form.save(commit=False)
          investment.user = request.user
+         investment.savings_account_percentage = savings_percentage
+         investment.insurance_account_percentage = insurance_percentage
+         investment.investment_account_percentage = investment_percentage
          investment.save()
          form.save_m2m()
+
+      categories = Category.objects.all()
+      sub_categories = SubCategory.objects.all()
+      investment = InvestmentInfo.objects.get(user=request.user)
+      total_amount_savings = investment.savings_account_balance
+      total_amount_insurance = investment.insurance_account_balance
+      total_amount_investment = investment.investment_account_balance
+
+      savings_count = 0.0
+      insurance_count = 0.0
+      investment_count = 0.0
+
+      for sub_category in sub_categories:
+         if sub_category.category.name.lower() == 'savings':
+            savings_count += 1
+         if sub_category.category.name.lower() == 'insurances':
+            insurance_count += 1
+         if sub_category.category.name.lower() == 'investments':
+            investment_count += 1
+
+
+
+      for sub_category in sub_categories:
+         if sub_category.category.name.lower() == "savings":
+            amount =  math.floor(float(total_amount_savings)/savings_count)
+            user = request.user
+            investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+            percentage = amount/float(investmentInfo.get_available_balance) * 100
+            sub_category_a = sub_category
+            s = Savings.objects.create(user=user, amount=amount, percentage=percentage, sub_category=sub_category_a)
+            s.save()
+
+
+         
+         if sub_category.category.name.lower() == 'insurances':
+            amount =  math.floor(float(total_amount_insurance)/insurance_count)
+            user = request.user
+            investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+            percentage = amount/float(investmentInfo.get_available_balance) * 100
+            sub_category_a = sub_category
+            ins = Insurances.objects.create(user=user, amount=amount, percentage=percentage, sub_category=sub_category_a)
+            ins.save()
+
+         if sub_category.category.name.lower() == 'investments':
+            amount =  math.floor(float(total_amount_investment)/investment_count)
+            user = request.user
+            investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+            percentage = amount/float(investmentInfo.get_available_balance) * 100
+            category = sub_category.category
+            sub_category_a = sub_category
+            inv = Investments.objects.create(user=user, amount=amount, percentage=percentage, sub_category=sub_category_a)
+            inv.save()
       return redirect(('/dashboard/'+ request.user.username + '/'))
 
 
@@ -109,64 +200,47 @@ def createInvestmetView(request):
 
 
 @login_required
-def addSavingsView(request):
+def editSavingsView(request, id):
    investmentinfo = InvestmentInfo.objects.get(user=request.user)
    investinfo = InvestmentInfo.objects.select_related('user').get(user=request.user)
 
-   savings = Savings.objects.filter(user=request.user)
-   choices_savings = Savings._meta.get_field('investmentMarkets').choices
+   saving = Savings.objects.get(pk=id)
+   savings = Savings.objects.filter(user = request.user)
 
    if request.method == 'GET': 
 
       form1 = ShowSavingForm()
       context = {'form1':form1,
-               'savings':savings,
-               'choices':choices_savings}
+               'saving':saving}
          
-      return render(request, "Main/add_savings.html", context)
+      return render(request, "Main/edit_savings.html", context)
    else:
-      form1 = ShowSavingForm(request.POST)
+      form1 = ShowSavingForm(request.POST, instance=saving)
       context = {'form1':form1,
-               'savings':savings,
-               'choices':choices_savings}
-
+               'saving':saving}
       amount = request.POST['amount']
+      amount = float(amount)
       total_savings = 0
-      for saving in savings:
-         total_savings += saving.amount
+      for savings in savings:
+         total_savings += savings.amount
       total_savings = float(total_savings)
+      total_savings -= float(saving.amount)
       total_savings += float(amount)
-      print(total_savings, investmentinfo.savings_account_balance, amount)
+
       if total_savings > investmentinfo.savings_account_balance:
-         messages.error(request, "Amount exceeds current balance for investments")
-         return render(request,  "Main/add_savings.html", context) 
+         messages.error(request, "Amount exceeds current balance for savings")
+         return render(request,  "Main/edit_savings.html", context) 
 
 
-      percentage = math.ceil((float(amount)/float(investmentinfo.savings_account_balance))*100.00)
-      total_percentage = 0
-      for saving in savings:
-         total_percentage += saving.percentage
-      total_percentage = float(total_percentage)
-      total_percentage += percentage
-      print(total_percentage, investmentinfo.savings_account_percentage, percentage)
-      if total_percentage > investmentinfo.savings_account_percentage:
-         messages.error(request, "Percentage exceeds remaining percentage for investments")
-         return render(request,  "Main/add_savings.html", context) 
-
-
+      percentage = math.floor(amount)/float(investinfo.get_available_balance) * 100
       username = request.user.username
       if form1.is_valid():
+         messages.success(request, "Edited successfully")
          saving = form1.save(commit=False)
          saving.user = request.user
          saving.percentage = percentage
          saving.save()
-         savings = Savings.objects.filter(user=request.user)
-         percentage = math.ceil((float(amount)/float(investmentinfo.savings_account_balance))*100.00)
-         for object in savings:
-            object.investmentInfo = investinfo 
-            object.percentage = percentage 
-            object.save()
-         
+        
          
       return redirect(('/dashboard/'+ username + '/'))
 
@@ -176,63 +250,47 @@ def addSavingsView(request):
 
 
 @login_required
-def addInvestmentView(request):
+def editInvestmentView(request, id):
    investmentinfo = InvestmentInfo.objects.get(user=request.user)
    investinfo = InvestmentInfo.objects.select_related('user').get(user=request.user)
 
+   investment = Investments.objects.get(pk=id)
    investments = Investments.objects.filter(user=request.user)
-   choices_investments = Investments._meta.get_field('investmentMarkets').choices
-
+   
    if request.method == 'GET': 
    
       form2 = ShowInvestmentForm()
       context = {'form2':form2,
-               'investments':investments,
-               'choices':choices_investments}
+               'investment':investment}
          
-      return render(request, "Main/add_investments.html", context)
+      return render(request, "Main/edit_investments.html", context)
    else:
-      form2 = ShowInvestmentForm(request.POST)
+      form2 = ShowInvestmentForm(request.POST, instance=investment)
       context = {'form2':form2,
-               'investments':investments,
-               'choices':choices_investments}
-
+               'investment':investment}
       amount = request.POST['amount']
+      amount = float(amount)
+
       total_investments = 0
-      for investment in investments:
-         total_investments += investment.amount
+      for investments in investments:
+         total_investments += investments.amount
       total_investments = float(total_investments)
+      total_investments -= float(investment.amount)
       total_investments += float(amount)
-      print(total_investments, investmentinfo.investment_account_balance, amount)
+
       if total_investments > investmentinfo.investment_account_balance:
          messages.error(request, "Amount exceeds current balance for investments")
-         return render(request,  "Main/add_investments.html", context) 
+         return render(request,  "Main/edit_investments.html", context) 
 
 
-      percentage = math.ceil((float(amount)/float(investmentinfo.investment_account_balance))*100.00)
-      total_percentage = 0
-      for investment in investments:
-         total_percentage += investment.percentage
-      total_percentage = float(total_percentage)
-      total_percentage += float(percentage)
-      
-      if total_percentage > investmentinfo.investment_account_percentage:
-         messages.error(request, "Percentage exceeds remaining percentage for Investments")
-         return render(request,  "Main/add_investments.html", context) 
-
-
+      percentage = math.floor(amount)/float(investinfo.get_available_balance) * 100
       username = request.user.username
       if form2.is_valid():
          invest = form2.save(commit=False)
          invest.user = request.user
          invest.percentage = percentage
          invest.save()
-         investments = Investments.objects.filter(user=request.user)
-         percentage = math.ceil((float(amount)/float(investmentinfo.investment_account_balance))*100.00)
-         for object in investments:
-            object.investmentInfo = investinfo
-            object.percentage = percentage 
-            object.save()
+         
          
          
       return redirect(('/dashboard/'+ username + '/'))
@@ -242,65 +300,101 @@ def addInvestmentView(request):
 # -----------------------------------INSURANCE VIEW--------------------------------------------
 
 @login_required
-def addInsuranceView(request):
+def editInsuranceView(request, id):
    investmentinfo = InvestmentInfo.objects.get(user=request.user)
    investinfo = InvestmentInfo.objects.select_related('user').get(user=request.user)
 
+   insurance = Insurances.objects.get(pk=id)
    insurances = Insurances.objects.filter(user=request.user)
-   choices_insurances = Insurances._meta.get_field('investmentMarkets').choices
 
    if request.method == 'GET': 
          
       form3 = ShowInsuranceForm()
       context = {'form3':form3,
-               'insurances':insurances,
-               'choices':choices_insurances}
+               'insurance':insurance}
          
-      return render(request, "Main/add_insurances.html", context)
+      return render(request, "Main/edit_insurances.html", context)
    else:
-      form3 = ShowInsuranceForm(request.POST)
+      form3 = ShowInsuranceForm(request.POST, instance=insurance)
       context = {'form3':form3,
-               'insurances':insurances,
-               'choices':choices_insurances}
+               'insurance':insurance}
 
       amount = request.POST['amount']
+      amount = float(amount)
       total_insurances = 0
-      for insurance in insurances:
+      for insurances in insurances:
          total_insurances += insurance.amount
       total_insurances = float(total_insurances)
+      total_insurances -= float(insurance.amount)
       total_insurances += float(amount)
-      print(total_insurances, investmentinfo.insurance_account_percentage, amount)
-      if total_insurances > investmentinfo.insurance_account_percentage:
+
+      if total_insurances > investmentinfo.insurance_account_balance:
          messages.error(request, "Amount exceeds current balance for Insurance")
-         return render(request,  "Main/add_insurances.html", context) 
+         return render(request,  "Main/edit_insurances.html", context) 
 
 
-      percentage = math.ceil((float(amount)/float(investmentinfo.insurance_account_balance))*100.00)
-      total_percentage = 0
-      for insurance in insurances:
-         total_percentage += insurance.percentage
-      total_percentage = float(total_percentage)
-      total_percentage += float(percentage)
-      if total_percentage > investmentinfo.insurance_account_percentage:
-         messages.error(request, "Percentage exceeds remaining percentage for Insurance")
-         return render(request,  "Main/add_insurance.html", context) 
-
-
+      percentage = math.floor(amount)/float(investinfo.get_available_balance) * 100
       username = request.user.username
       if form3.is_valid():
          insure = form3.save(commit=False)
          insure.user = request.user
          insure.percentage = percentage
          insure.save()
-         insurances = Insurances.objects.filter(user=request.user)
-         percentage = math.ceil((float(amount)/float(investmentinfo.insurance_account_balance))*100.00)
-         for object in insurances:
-            object.investmentInfo = investinfo 
-            object.percentage = percentage 
-            object.save()
          
          
       return redirect(('/dashboard/'+ username + '/'))
-   
 
-      
+
+
+def investment_info_edit(request, id):
+   investments = InvestmentInfo.objects.get(pk=id)
+   if request.method == 'GET':
+      form = EditInvestmentForm()
+      context = {
+         'investments': investments,
+         'form':form
+      }
+      return render(request, "Main/edit_investment_goals.html", context)
+   else:
+      username = request.POST.get('username')
+      form = EditInvestmentForm(request.POST, instance=investments) 
+      if form.is_valid():
+         messages.success(request, "Updated successfully")
+         form.save()
+      return redirect(('/dashboard/'+ request.user.username + '/'))     
+
+
+
+def investment_info_delete(request, id):
+   investment_info = InvestmentInfo.objects.filter(user=request.user)
+   savings = Savings.objects.filter(user=request.user)
+   insurances = Insurances.objects.filter(user=request.user)
+   investments = Investments.objects.filter(user=request.user)
+   investment_info.delete()
+   savings.delete()
+   insurances.delete()
+   investments.delete()
+   
+   messages.success(request, "Investment deleted" )
+   return redirect(('/dashboard/'+ request.user.username + '/'))     
+
+
+def saving_delete(request, id):
+   saving = Savings.objects.get(pk=id)
+   saving.delete()
+   messages.success(request, "Saving deleted" )
+   return redirect(('/dashboard/'+ request.user.username + '/'))     
+
+
+def insurance_delete(request, id):
+   insurance = Insurances.objects.get(pk=id)
+   insurance.delete()
+   messages.success(request, "Insurance deleted" )
+   return redirect(('/dashboard/'+ request.user.username + '/'))     
+
+
+def investment_delete(request, id):
+   investment = Investments.objects.get(pk=id)
+   investment.delete()
+   messages.success(request, "Investment deleted" )
+   return redirect(('/dashboard/'+ request.user.username + '/'))     

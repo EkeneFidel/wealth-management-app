@@ -1,0 +1,45 @@
+{% extends 'Main/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<!--Panel1-->
+<nav aria-label="breadcrumb">
+   <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'dashboard_url' %}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Edit Investment Goals</li>
+   </ol>
+</nav>
+
+<div>
+   <form action="{% url 'investment_goals_edit' investments.user_id %}" method="post">
+      {% csrf_token %}
+      <div class="row">
+         <div class="col-md-4">
+            {{form.monthly_income | as_crispy_field}}
+         </div>
+         <div class="col-md-4">
+            {{form.monthly_expenses|as_crispy_field}}
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-4">
+            {{form.savings_account_percentage|as_crispy_field}}
+         </div>
+         <div class="col-md-4">
+            {{form.insurance_account_percentage|as_crispy_field}}
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-4">
+            {{form.investment_account_percentage| as_crispy_field}}
+         </div>
+      </div>
+
+      <button type="submit" class="btn btn-success btn-lg mt-4">Save</button>
+   </form>
+   <a href="{% url 'investment_goals_delete' investments.user_id %}" class="btn btn-danger btn-lg mt-4">Delete</a>
+</div>
+<div>
+
+</div>
+
+{% endblock %}

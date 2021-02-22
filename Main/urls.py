@@ -1,5 +1,5 @@
 from django.urls import path
-from django.conf.urls import re_path
+from django.conf.urls import re_path, url
 from . import views
 
 urlpatterns = [
@@ -8,8 +8,16 @@ urlpatterns = [
     path('login/', views.loginView, name='login_url'),
     path('logout/', views.logoutView, name='logout_url'),
     re_path(r'^dashboard/', views.dashboardView, name='dashboard_url'),
-    path('add-savings/', views.addSavingsView, name='add_savings_url'),
-    path('add-investments/', views.addInvestmentView, name='add_investments_url'),
-    path('add-insurances/', views.addInsuranceView, name='add_insurances_url'),
+    path('edit-savings/<int:id>', views.editSavingsView, name='edit_savings_url'),
+    path('delete-savings/<int:id>', views.saving_delete, name='delete_savings_url'),
+
+    path('edit-investments/<int:id>', views.editInvestmentView, name='edit_investments_url'),
+    path('delete-investments/<int:id>', views.investment_delete, name='delete_investments_url'),
+
+    path('edit-insurances/<int:id>', views.editInsuranceView, name='edit_insurances_url'),
+    path('delete-insurances/<int:id>', views.insurance_delete, name='delete_insurances_url'),
+
     path('investment/', views.createInvestmetView, name='investment_url'), 
+    path('edit-investment/<int:id>', views.investment_info_edit, name='investment_goals_edit'), 
+    path('delete-investment-info/<int:id>', views.investment_info_delete, name='investment_goals_delete'), 
     ]

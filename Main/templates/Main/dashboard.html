@@ -1,91 +1,189 @@
 {% extends 'Main/base.html'%}
 {% load static %}
+{% load main_extras %}
 {% block title%}Home{% endblock%}
 {% block content %}
 
 <br>
 {% if investments %}
-<div class="row justify-content-between">
-   <div class="col-5">
-      <div class="col-md">
-         <div class="card text-center text-dark mb-3">
+<div class="d-grid gap-2 d-md-flex justify-content-md-end p-4">
+   <a href="{% url 'investment_goals_edit' investments.user_id %}" class="btn btn-secondary btn-lg me-md-2"
+      type="button">Edit Investment Goals </a>
 
-            <div class="card-body">
-               <h2 class="card-title">Welcome Back, {{user.first_name|title}}!</h2>
-            </div>
-         </div>
-      </div>
+</div>
+<div class=" row justify-content-between">
+   <div class="col">
+
+      <h3>Welcome Back, {{user.first_name|title}}!</h3>
+
+
    </div>
-   <div class="col-5">
+   <div class="col">
+      <div class="col-md">
+         <div class="card text-center text-dark mb-3">
+            <div class="card-body">
+               <h5 class="bold">Allocated amount</h5>
+               <h3 class="card-title">${{ investments.get_total_amount }}</h3>
+            </div>
+         </div>
+      </div>
+
+   </div>
+
+   <div class="col">
       <div class="col-md">
          <div class="card text-center text-dark mb-3">
 
             <div class="card-body">
-               <h2 class="card-title">Available to invest: ${{ investments.get_available_balance }}</h2>
+               <h5 class="bold">Available To Tnvest</h5>
+               <h3 class="card-title bold "> ${{ investments.available_to_invest }}</h3>
             </div>
          </div>
       </div>
+
    </div>
 
 </div>
 
-
+<!-- -----------------------------------ACCORDIAN START------------------------------------------------------------------ -->
 <br>
-<table class="table">
-   <thead>
-      <tr>
-         <th scope="col">Asset Class</th>
-         <th scope="col">Investment Market</th>
-         <th scope="col">Amount</th>
-         <th scope="col">Mass</th>
-      </tr>
-   </thead>
-   <tbody>
-      {% for saving in savings %}
-      <tr>
-         <th scope="row">Savings</th>
-         <td>{{saving.investmentMarkets}}</td>
-         <td>${{saving.amount}}</td>
-         <td>{{saving.percentage}}%</td>
-      </tr>
-      {% endfor %}
-   </tbody>
-   <tbody>
-      {% for insurance in insurance %}
-      <tr>
-         <th scope="row">Insurance</th>
-         <td>{{insurance.investmentMarkets}}</td>
-         <td>${{insurance.amount}}</td>
-         <td>{{insurance.percentage}}%</td>
-      </tr>
-      {% endfor %}
-   </tbody>
-   <tbody>
-      {% for invest in invest %}
-      <tr>
-         <th scope="row">Investment</th>
-         <td>{{invest.investmentMarkets}}</td>
-         <td>${{invest.amount}}</td>
-         <td>{{invest.percentage}}%</td>
-      </tr>
-      {% endfor %}
-   </tbody>
-   <br>
-   <br>
-   <tbody>
-      <tr>
-         <th scope="row">Total</th>
-         <td></td>
-         <td>${{investments.get_total_amount}}</td>
-         <td></td>
-      </tr>
-   </tbody>
-</table>
+<br>
+<br>
 
-<a class="btn btn-secondary btn-lg mt-4" href="{% url 'add_savings_url' %}" type="submit">Add Savings</a>
-<a class="btn btn-secondary btn-lg mt-4" href="{% url 'add_investments_url' %}" type="submit">Add Investments</a>
-<a class="btn btn-secondary btn-lg mt-4" href="{% url 'add_insurances_url' %}" type="submit">Add Insurances</a>
+<h4>Asset Class</h4>
+<div class="accordion accordion-flush col" id="accordionFlushExample">
+   <div class="accordion-item">
+      <h2 class="accordion-header" id="flush-headingOne">
+         <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+            Savings
+         </div>
+      </h2>
+      <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne"
+         data-bs-parent="#accordionFlushExample">
+         {% if savings %}
+         <table class="table accordion-body">
+            <thead>
+               <tr>
+                  <th scope="col">Investment Market</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Mass</th>
+                  <th scope="col"></th>
+                  <th scope="col"></th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for saving in savings %}
+               <tr>
+                  <td>{{saving.sub_category}}</td>
+                  <td>${{saving.amount}}</td>
+                  <td>{{saving.percentage}}%</td>
+                  <td>
+                     <a href="{% url 'edit_savings_url' saving.id %}" class="btn btn-sm btn-secondary">Edit</a>
+                  </td>
+                  <td>
+                     <a href="{% url 'delete_savings_url' saving.id %}" class="btn btn-sm btn-danger">Delete</a>
+                  </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+         {% endif %}
+      </div>
+   </div>
+   <div class="accordion-item">
+      <h2 class="accordion-header" id="flush-headingTwo">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+            Investments
+         </button>
+      </h2>
+      <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo"
+         data-bs-parent="#accordionFlushExample">
+         {% if invest %}
+         <table class="table accordion-body">
+            <thead>
+               <tr>
+                  <th scope="col">Investment Market</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Mass</th>
+                  <th scope="col"></th>
+                  <th scope="col"></th>
+               </tr>
+            </thead>
+            <tbody>
 
+               {% for invest in invest %}
+               <tr>
+                  <td>{{invest.sub_category}}</td>
+                  <td>${{invest.amount}}</td>
+                  <td>{{invest.percentage}}%</td>
+                  <td>
+                     <a href="{% url 'edit_investments_url' invest.id %}" class="btn btn-sm btn-secondary">Edit</a>
+                  </td>
+                  <td>
+                     <a href="{% url 'delete_investments_url' invest.id %}" class="btn btn-sm btn-danger">Delete</a>
+                  </td>
+               </tr>
+               {% endfor %}
+
+
+            </tbody>
+         </table>
+         {% endif %}
+      </div>
+   </div>
+   <div class="accordion-item">
+      <h2 class="accordion-header" id="flush-headingThree">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+            Insurances
+         </button>
+      </h2>
+      <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree"
+         data-bs-parent="#accordionFlushExample">
+         {% if insurance %}
+         <table class="table accordion-body">
+            <thead>
+               <tr>
+                  <th scope="col">Investment Market</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Mass</th>
+                  <th scope="col"></th>
+                  <th scope="col"></th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for insurance in insurance %}
+               <tr>
+                  <td>{{insurance.sub_category}}</td>
+                  <td>${{insurance.amount}}</td>
+                  <td>{{insurance.percentage}}%</td>
+                  <td>
+                     <a href="{% url 'edit_insurances_url' insurance.id %}" class="btn btn-sm btn-secondary">Edit</a>
+                  </td>
+                  <td>
+                     <a href="{% url 'delete_insurances_url' insurance.id %}" class="btn btn-sm btn-danger">Delete</a>
+                  </td>
+               </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+         {% endif %}
+      </div>
+   </div>
+</div>
+
+
+
+
+
+
+
+<!-- -----------------------------------ACCORDIAN END------------------------------------------------------------------ -->
+<br>
+<br>
+<br>
 {% else %}
 
 
@@ -138,5 +236,9 @@
             }
          })
    })
+
+   $('.collapse').on('show.bs.collapse', function () {
+      $('.collapse.in').collapse('hide');
+   });
 </script>
 {% endblock extra_js %}
