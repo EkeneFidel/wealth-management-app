@@ -34,12 +34,20 @@ class InvestmentForm(forms.ModelForm):
       model = InvestmentInfo
       fields = ('monthly_income', 'monthly_expenses')
 
+   def __init__(self, *args, **kwargs):
+        super(InvestmentForm, self).__init__(*args, **kwargs)
+        self.fields['monthly_expenses'].label = "Estimated monthly expenses"
+
 
 class EditInvestmentForm(forms.ModelForm):
 
    class Meta:
       model = InvestmentInfo
       fields = ('monthly_income', 'monthly_expenses', 'savings_account_percentage', 'insurance_account_percentage', 'investment_account_percentage')
+
+   def __init__(self, *args, **kwargs):
+        super(EditInvestmentForm, self).__init__(*args, **kwargs)
+        self.fields['monthly_expenses'].label = "Estimated monthly expenses"
 
 
 class ShowSavingForm(forms.ModelForm):

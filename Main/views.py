@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist
 import math
 import json
+
 
 
 
@@ -134,7 +135,7 @@ def createInvestmetView(request):
       monthly_expenses = request.POST.get('monthly_expenses')
       monthly_expenses = float(monthly_expenses)
       if monthly_expenses > monthly_income:
-         messages.error(request, "Monthly Income Is More Than Monthly Expenses")
+         messages.error(request, "Monthly expenses is more than monthly income")
          return render(request, "Main/create_investment.html", {'form':form})
 
       savings_percentage = 50
@@ -368,10 +369,20 @@ def investment_info_edit(request, id):
    else:
       username = request.POST.get('username')
       monthly_income = request.POST.get('monthly_income')
+      monthly_income = float(monthly_income)
+
       monthly_expenses = request.POST.get('monthly_expenses')
+      monthly_expenses = float(monthly_expenses)
+
       savings_account_percentage = request.POST.get('savings_account_percentage')
+      savings_account_percentage = float(savings_account_percentage)
+
       insurance_account_percentage = request.POST.get('insurance_account_percentage')
+      insurance_account_percentage = float(insurance_account_percentage)
+
       investment_account_percentage = request.POST.get('investment_account_percentage')
+      investment_account_percentage = float(investment_account_percentage)
+
       form = EditInvestmentForm(request.POST, instance=investments) 
       if form.is_valid():
          messages.success(request, "Updated successfully")
@@ -383,6 +394,94 @@ def investment_info_edit(request, id):
          investment.monthly_expenses = monthly_expenses
          investment.monthly_income = monthly_income
          investment.save()
+
+         investment_info = InvestmentInfo.objects.get(pk=id)
+
+         total_amount_savings = investment.savings_account_balance
+         savings = Savings.objects.filter(user = request.user)
+
+         if not savings:
+            sub_categories = SubCategory.objects.all()
+            savings_count = 0.0
+            for sub_category in sub_categories:
+               if sub_category.category.name.lower() == 'savings':
+                  savings_count += 1
+            for sub_category in sub_categories:
+               if sub_category.category.name.lower() == "savings":
+                  amount =  math.floor(float(total_amount_savings)/savings_count)
+                  user = request.user
+                  investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+                  percentage = amount/float(investmentInfo.get_available_balance) * 100
+                  sub_category_a = sub_category
+                  s = Savings.objects.create(user=user, amount=amount, percentage=percentage, sub_category=sub_category_a)
+                  s.save()
+
+         else:
+            for saving in savings:
+               saving.user = request.user
+               saving.investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+               saving.amount =  math.floor(float(total_amount_savings)/savings.count())
+               saving.percentage = saving.amount/float(investment_info.get_available_balance) * 100
+               saving.sub_category = saving.sub_category
+               saving.save()
+
+
+         total_amount_insurance = investment.insurance_account_balance
+         insurances = Insurances.objects.filter(user = request.user)
+
+
+         if not insurances:
+            sub_categories = SubCategory.objects.all()
+            insurance_count = 0.0
+            for sub_category in sub_categories:
+               if sub_category.category.name.lower() == 'insurances':
+                  insurance_count += 1
+            for sub_category in sub_categories:
+               if sub_category.category.name.lower() == "insurances":
+                  amount =  math.floor(float(total_amount_insurance)/insurance_count)
+                  user = request.user
+                  investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+                  percentage = amount/float(investmentInfo.get_available_balance) * 100
+                  sub_category_a = sub_category
+                  ins = Insurances.objects.create(user=user, amount=amount, percentage=percentage, sub_category=sub_category_a)
+                  ins.save()
+         else:
+            for insurance in insurances:
+               insurance.user = request.user
+               insurance.investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+               insurance.amount =  math.floor(float(total_amount_insurance)/insurances.count())
+               insurance.percentage = insurance.amount/float(investment_info.get_available_balance) * 100
+               insurance.sub_category = insurance.sub_category
+               insurance.save()
+
+
+         total_amount_investment = investment.investment_account_balance
+         investments = Investments.objects.filter(user = request.user)
+
+         if not investments:
+            sub_categories = SubCategory.objects.all()
+            investment_count = 0.0
+            for sub_category in sub_categories:
+               if sub_category.category.name.lower() == 'investments':
+                  investment_count += 1
+            for sub_category in sub_categories:
+               if sub_category.category.name.lower() == "investments":
+                  amount =  math.floor(float(total_amount_investment)/investment_count)
+                  user = request.user
+                  investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+                  percentage = amount/float(investmentInfo.get_available_balance) * 100
+                  sub_category_a = sub_category
+                  inv = Investments.objects.create(user=user, amount=amount, percentage=percentage, sub_category=sub_category_a)
+                  inv.save()
+         else:
+            for investment in investments:
+               investment.user = request.user
+               investment.investmentInfo =  InvestmentInfo.objects.select_related('user').get(user=request.user)
+               investment.amount =  math.floor(float(total_amount_investment)/investments.count())
+               investment.percentage = investment.amount/float(investment_info.get_available_balance) * 100
+               investment.sub_category = investment.sub_category
+               investment.save()
+
       return redirect(('/dashboard/'+ request.user.username + '/'))     
 
 
@@ -420,3 +519,112 @@ def investment_delete(request, id):
    investment.delete()
    messages.success(request, "Investment deleted" )
    return redirect(('/dashboard/'+ request.user.username + '/'))     
+
+
+def pie_chart(request):
+   investment_info = InvestmentInfo.objects.get(user=request.user)
+   labels = []
+   data = []
+
+   def get_monthly_income(investment_info):
+      return investment_info.monthly_income
+
+   def get_monthly_expenses(investment_info):
+      return investment_info.monthly_expenses
+
+   def get_allocated_amount(investment_info):
+      return investment_info.get_total_amount
+
+   def get_available_amount(investment_info):
+      return investment_info.available_to_invest
+   
+
+   labels.append('Expenses')
+   labels.append('Allocated')
+   labels.append('Available')
+
+   data.append(float(get_monthly_expenses(investment_info)))
+   data.append(float(get_allocated_amount(investment_info)))
+   data.append(float(get_available_amount(investment_info)))
+
+   if 0 in data:
+      data.remove(0)
+
+   return JsonResponse(data={
+        'labels': labels,
+        'data': data,
+    })
+
+
+def bucket_pie_chart(request):
+   labels = set()
+   data = []
+   savings = Savings.objects.filter(user = request.user)
+   current_savings_balance = 0
+   for saving in savings:
+      amount_savings = float(saving.amount)
+      current_savings_balance += amount_savings
+      labels.add(saving.name)
+   data.append(current_savings_balance)
+
+   insurances = Insurances.objects.filter(user = request.user)
+   current_insurances_balance = 0
+   for insurance in insurances:
+      amount_insurance = float(insurance.amount)
+      current_insurances_balance += amount_insurance
+      labels.add(insurance.name)
+   data.append(current_insurances_balance)
+
+   investments = Investments.objects.filter(user = request.user)
+   current_investments_balance = 0
+   for investment in investments:
+      amount_investment = float(investment.amount)
+      current_investments_balance += amount_investment
+      labels.add(investment.name)
+   data.append(current_investments_balance)
+   labels = list(labels)
+   
+   if 0 in data:
+      data.remove(0)
+
+   return JsonResponse(data={
+        'labels': labels,
+        'data': data,
+    })
+
+
+
+def market_pie_chart(request):
+   labels = []
+   data = []
+   savings = Savings.objects.filter(user = request.user)
+   for saving in savings:
+      amount_savings = float(saving.amount)
+      data.append(amount_savings)
+      labels.append(str(saving.sub_category))
+
+   insurances = Insurances.objects.filter(user = request.user)
+   current_insurances_balance = 0
+   for insurance in insurances:
+      amount_insurance = float(insurance.amount)
+      data.append(amount_insurance)
+      labels.append(str(insurance.sub_category))
+
+   investments = Investments.objects.filter(user = request.user)
+   current_investments_balance = 0
+   for investment in investments:
+      amount_investment = float(investment.amount)
+      data.append(amount_investment)
+      labels.append(str(investment.sub_category))
+
+   if 0 in data:
+      data.remove(0)
+
+ 
+   return JsonResponse(data={
+        'labels': labels,
+        'data': data,
+    })
+
+
+   

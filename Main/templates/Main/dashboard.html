@@ -11,19 +11,27 @@
       type="button">Edit Investment Goals </a>
 
 </div>
+
+<!-- <div id="container" style="width: 75%;">
+   <canvas id="myCharts" width="300" height="200"></canvas>
+</div> -->
+
+
+<div class='m-5'>
+
+   <h3>Welcome Back, {{user.first_name|title}}!</h3>
+
+
+</div>
+
 <div class=" row justify-content-between">
-   <div class="col">
 
-      <h3>Welcome Back, {{user.first_name|title}}!</h3>
-
-
-   </div>
    <div class="col">
       <div class="col-md">
          <div class="card text-center text-dark mb-3">
             <div class="card-body">
-               <h5 class="bold">Allocated amount</h5>
-               <h3 class="card-title">${{ investments.get_total_amount }}</h3>
+               <h5 class="bold">Expenses/Available/Allocated</h5>
+               <canvas id="pie-chart" data-url="{% url 'pie_chart' %}"></canvas>
             </div>
          </div>
       </div>
@@ -35,8 +43,21 @@
          <div class="card text-center text-dark mb-3">
 
             <div class="card-body">
-               <h5 class="bold">Available To Tnvest</h5>
-               <h3 class="card-title bold "> ${{ investments.available_to_invest }}</h3>
+               <h5 class="bold">Allocation By Buckets</h5>
+               <canvas id="bucket-chart" data-url="{% url 'bucket_pie_chart' %}"></canvas>
+            </div>
+         </div>
+      </div>
+
+   </div>
+
+   <div class="col">
+      <div class="col-md">
+         <div class="card text-center text-dark mb-3">
+
+            <div class="card-body">
+               <h5 class="bold">Allocation By Markets</h5>
+               <canvas id="market-chart" data-url="{% url 'market_pie_chart' %}"></canvas>
             </div>
          </div>
       </div>
@@ -45,145 +66,110 @@
 
 </div>
 
-<!-- -----------------------------------ACCORDIAN START------------------------------------------------------------------ -->
-<br>
-<br>
-<br>
+{% if savings %}
 
-<h4>Asset Class</h4>
-<div class="accordion accordion-flush col" id="accordionFlushExample">
-   <div class="accordion-item">
-      <h2 class="accordion-header" id="flush-headingOne">
-         <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-            data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-            Savings
-         </div>
-      </h2>
-      <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne"
-         data-bs-parent="#accordionFlushExample">
-         {% if savings %}
-         <table class="table accordion-body">
-            <thead>
-               <tr>
-                  <th scope="col">Investment Market</th>
-                  <th scope="col">Amount</th>
-                  <th scope="col">Mass</th>
-                  <th scope="col"></th>
-                  <th scope="col"></th>
-               </tr>
-            </thead>
-            <tbody>
-               {% for saving in savings %}
-               <tr>
-                  <td>{{saving.sub_category}}</td>
-                  <td>${{saving.amount}}</td>
-                  <td>{{saving.percentage}}%</td>
-                  <td>
-                     <a href="{% url 'edit_savings_url' saving.id %}" class="btn btn-sm btn-secondary">Edit</a>
-                  </td>
-                  <td>
-                     <a href="{% url 'delete_savings_url' saving.id %}" class="btn btn-sm btn-danger">Delete</a>
-                  </td>
-               </tr>
-               {% endfor %}
-            </tbody>
-         </table>
-         {% endif %}
-      </div>
-   </div>
-   <div class="accordion-item">
-      <h2 class="accordion-header" id="flush-headingTwo">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-            data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
-            Investments
-         </button>
-      </h2>
-      <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo"
-         data-bs-parent="#accordionFlushExample">
-         {% if invest %}
-         <table class="table accordion-body">
-            <thead>
-               <tr>
-                  <th scope="col">Investment Market</th>
-                  <th scope="col">Amount</th>
-                  <th scope="col">Mass</th>
-                  <th scope="col"></th>
-                  <th scope="col"></th>
-               </tr>
-            </thead>
-            <tbody>
+<div class="container">
+   <h4>Savings</h4>
+   <div class="row">
+      <table class="table">
+         <thead class="table-dark">
+            <th scope="col">Investment Market</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Mass</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+         </thead>
+         <tbody>
 
-               {% for invest in invest %}
-               <tr>
-                  <td>{{invest.sub_category}}</td>
-                  <td>${{invest.amount}}</td>
-                  <td>{{invest.percentage}}%</td>
-                  <td>
-                     <a href="{% url 'edit_investments_url' invest.id %}" class="btn btn-sm btn-secondary">Edit</a>
-                  </td>
-                  <td>
-                     <a href="{% url 'delete_investments_url' invest.id %}" class="btn btn-sm btn-danger">Delete</a>
-                  </td>
-               </tr>
-               {% endfor %}
-
-
-            </tbody>
-         </table>
-         {% endif %}
-      </div>
-   </div>
-   <div class="accordion-item">
-      <h2 class="accordion-header" id="flush-headingThree">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-            data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
-            Insurances
-         </button>
-      </h2>
-      <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree"
-         data-bs-parent="#accordionFlushExample">
-         {% if insurance %}
-         <table class="table accordion-body">
-            <thead>
-               <tr>
-                  <th scope="col">Investment Market</th>
-                  <th scope="col">Amount</th>
-                  <th scope="col">Mass</th>
-                  <th scope="col"></th>
-                  <th scope="col"></th>
-               </tr>
-            </thead>
-            <tbody>
-               {% for insurance in insurance %}
-               <tr>
-                  <td>{{insurance.sub_category}}</td>
-                  <td>${{insurance.amount}}</td>
-                  <td>{{insurance.percentage}}%</td>
-                  <td>
-                     <a href="{% url 'edit_insurances_url' insurance.id %}" class="btn btn-sm btn-secondary">Edit</a>
-                  </td>
-                  <td>
-                     <a href="{% url 'delete_insurances_url' insurance.id %}" class="btn btn-sm btn-danger">Delete</a>
-                  </td>
-               </tr>
-               {% endfor %}
-            </tbody>
-         </table>
-         {% endif %}
-      </div>
+            {% for saving in savings %}
+            <tr>
+               <td>{{saving.sub_category}}</td>
+               <td>${{saving.amount}}</td>
+               <td>{{saving.percentage}}%</td>
+               <td>
+                  <a href="{% url 'edit_savings_url' saving.id %}" class="btn btn-sm btn-secondary">Edit</a>
+               </td>
+               <td>
+                  <a href="{% url 'delete_savings_url' saving.id %}" class="btn btn-sm btn-danger">Delete</a>
+               </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+         </tbody>
+      </table>
    </div>
 </div>
-
-
-
-
-
-
-
-<!-- -----------------------------------ACCORDIAN END------------------------------------------------------------------ -->
 <br>
+
+{% if invest %}
+
+<div class="container">
+   <h4>Investments</h4>
+   <div class="row">
+      <table class="table">
+         <thead class="table-dark">
+            <th scope="col">Investment Market</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Mass</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+         </thead>
+         <tbody>
+
+            {% for invest in invest %}
+            <tr>
+               <td>{{invest.sub_category}}</td>
+               <td>${{invest.amount}}</td>
+               <td>{{invest.percentage}}%</td>
+               <td>
+                  <a href="{% url 'edit_investments_url' invest.id %}" class="btn btn-sm btn-secondary">Edit</a>
+               </td>
+               <td>
+                  <a href="{% url 'delete_investments_url' invest.id %}" class="btn btn-sm btn-danger">Delete</a>
+               </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+         </tbody>
+      </table>
+   </div>
+</div>
 <br>
-<br>
+
+
+{% if insurance %}
+
+<div class="container">
+   <h4>Insurances</h4>
+   <div class="row">
+      <table class="table">
+         <thead class="table-dark">
+            <th scope="col">Investment Market</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Mass</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+         </thead>
+         <tbody>
+
+            {% for insurance in insurance %}
+            <tr>
+               <td>{{insurance.sub_category}}</td>
+               <td>${{insurance.amount}}</td>
+               <td>{{insurance.percentage}}%</td>
+               <td>
+                  <a href="{% url 'edit_insurances_url' insurance.id %}" class="btn btn-sm btn-secondary">Edit</a>
+               </td>
+               <td>
+                  <a href="{% url 'delete_insurances_url' insurance.id %}" class="btn btn-sm btn-danger">Delete</a>
+               </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+         </tbody>
+      </table>
+   </div>
+</div>
 {% else %}
 
 
@@ -241,4 +227,145 @@
       $('.collapse.in').collapse('hide');
    });
 </script>
+<script src="{% static 'js/piechart.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+
+   $(function () {
+
+      var $pieChart = $("#pie-chart");
+      var $bucketChart = $("#bucket-chart");
+      var $marketChart = $("#market-chart");
+      $.ajax({
+         url: $pieChart.data("url"),
+         success: function (data) {
+
+            var ctx = $pieChart[0].getContext("2d");
+
+            new Chart(ctx, {
+               type: 'pie',
+               data: {
+                  labels: data.labels,
+                  datasets: [{
+                     label: 'Income',
+                     backgroundColor: ['rgba(255, 0, 0)',
+                        'rgb(0, 0, 255)',
+                        'rgb(0, 255, 0)',
+                        'rgba(75, 192, 192)',
+                        'rgba(153, 102, 255)',
+                        'rgba(255, 159, 64)',
+                        'rgb(123, 23, 133)',
+                        'rgb(55, 92, 90)',
+                        'rgba(11, 22, 112)',
+                        'rgba(153, 102, 255)',
+                        'rgba(122, 25, 4)'],
+                     data: data.data
+                  }]
+               },
+               options: {
+                  responsive: true,
+                  legend: {
+                     display: false,
+                     position: 'bottom',
+                  },
+                  title: {
+                     display: false,
+                     text: 'Expenses/Availabe/Allocated'
+                  }
+               }
+            });
+
+         }
+      });
+
+
+      $.ajax({
+         url: $bucketChart.data("url"),
+         success: function (data) {
+
+            var ctx = $bucketChart[0].getContext("2d");
+
+            new Chart(ctx, {
+               type: 'pie',
+               data: {
+                  labels: data.labels,
+                  datasets: [{
+                     label: 'Income',
+                     backgroundColor: ['rgba(255, 0, 0)',
+                        'rgb(0, 0, 255)',
+                        'rgb(0, 255, 0)',
+                        'rgba(75, 192, 192)',
+                        'rgba(153, 102, 255)',
+                        'rgba(255, 159, 64)',
+                        'rgb(123, 23, 133)',
+                        'rgb(55, 92, 90)',
+                        'rgba(11, 22, 112)',
+                        'rgba(153, 102, 255)',
+                        'rgba(122, 25, 4)'],
+                     data: data.data
+                  }]
+               },
+               options: {
+                  responsive: true,
+                  legend: {
+                     display: false,
+                     position: 'bottom',
+                  },
+                  title: {
+                     display: false,
+                     text: 'Allocation By Buckets'
+                  }
+               }
+            });
+
+         }
+      });
+
+
+      $.ajax({
+         url: $marketChart.data("url"),
+         success: function (data) {
+
+            var ctx = $marketChart[0].getContext("2d");
+
+            new Chart(ctx, {
+               type: 'pie',
+               data: {
+                  labels: data.labels,
+                  datasets: [{
+                     label: 'Income',
+                     backgroundColor: ['rgba(255, 0, 0)',
+                        'rgb(0, 0, 255)',
+                        'rgb(0, 100, 255)',
+                        'rgba(75, 192, 192)',
+                        'rgba(153, 102, 255)',
+                        'rgba(255, 159, 64)',
+                        'rgb(123, 23, 133)',
+                        'rgb(55, 92, 90)',
+                        'rgba(11, 22, 112)',
+                        'rgba(153, 102, 255)',
+                        'rgba(122, 25, 4)'],
+                     data: data.data
+                  }]
+               },
+               options: {
+                  responsive: true,
+                  legend: {
+                     display: false,
+                     position: 'bottom',
+                  },
+                  title: {
+                     display: false,
+                     text: 'Markets'
+                  }
+               }
+            });
+
+         }
+      });
+
+   });
+
+</script>
+
 {% endblock extra_js %}

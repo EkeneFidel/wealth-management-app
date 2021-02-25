@@ -20,4 +20,7 @@ urlpatterns = [
     path('investment/', views.createInvestmetView, name='investment_url'), 
     path('edit-investment/<int:id>', views.investment_info_edit, name='investment_goals_edit'), 
     path('delete-investment-info/<int:id>', views.investment_info_delete, name='investment_goals_delete'), 
+    path('pie-chart', views.pie_chart, name='pie_chart'),
+    path('bucket-pie-chart', views.bucket_pie_chart, name='bucket_pie_chart'),
+    path('market-pie-chart', views.market_pie_chart, name='market_pie_chart'),
     ]

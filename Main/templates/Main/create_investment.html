@@ -21,10 +21,10 @@
          </div>
       </div>
       <div class="row">
-         <div class="col-md-4">
+         <div class="col-md-4" id='monthly_income'>
             {{form.monthly_income | as_crispy_field}}
          </div>
-         <div class="col-md-4">
+         <div class="col-md-4" id='monthly_expenses'>
             {{form.monthly_expenses|as_crispy_field}}
          </div>
       </div>
@@ -33,3 +33,5 @@
 </div>
 
 {% endblock %}
+{% block extra_js %}
+{% endblock extra_js %}
