@@ -14,12 +14,15 @@ import json
 
 
 from .forms import UserForm, InvestmentForm, ShowInvestmentForm, ShowSavingForm, ShowInsuranceForm, EditInvestmentForm
-from .models import InvestmentInfo, Savings, Insurances, Investments, SubCategory, Category, AddMarket
+from .models import InvestmentInfo, Savings, Insurances, Investments, SubCategory, Category
 
 
 # Create your views here.
 def indexView(request):
-   return render(request, 'Main/index.html', {})
+   if request.user.is_authenticated:
+      return redirect(('/dashboard/'+ request.user.username + '/'))
+   else:
+      return render(request, 'Main/index.html', {})
 
    
 def registerView(request):
@@ -49,7 +52,7 @@ def loginView(request):
                if user.is_active:
                   login(request,user)
                   return redirect('/dashboard/'+ username + '/')
-                  # return render(request,'Main/dashboard.html')
+                  
                else:
                   messages.error(request, 'Your account has been disabled')
                   return render(request,'Main/login.html')
@@ -73,35 +76,18 @@ def dashboardView(request):
    invest = Investments.objects.filter(user=request.user)
    insurance = Insurances.objects.filter(user=request.user)
    
-   add_market = AddMarket.objects.filter(user=request.user)
    categories = Category.objects.all()
    sub_categories = SubCategory.objects.all()
    cats = []
    for category in categories:
       cats.append(category)
    
-   # count = AddMarket.objects.filter(user=request.user).count()
-   # if count < 3:
-   #    user_a = request.user
-   #    amount_a = 5000
-   #    percentage_a = 30
-   #    category_a = Category.objects.get(id=1)
-   #    sub_category_a = SubCategory.objects.get(id=1)
-
-   #    a = AddMarket.objects.create(user=user_a, amount=amount_a, percentage=percentage_a, category=category_a, sub_category=sub_category_a )
-   #    a.save()
-   #    add_market = AddMarket.objects.filter(user=request.user)
-   #    count = AddMarket.objects.filter(user=request.user).count()
-   #    print(count)
-   # else:
-   #    pass
    arr_length = len(cats)
    context = {
       'investments': investments,
       'savings': savings,
       'invest': invest,
       'insurance': insurance,
-      'add_market':add_market,
       'categories':categories,
       'sub_categories':sub_categories,
       'cats':cats,

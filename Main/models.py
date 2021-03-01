@@ -162,21 +162,3 @@ class Investments(models.Model):
 
    def __str__(self):
       return self.user.username + " Investments "
-
-
-
-class AddMarket(models.Model):
-   user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-   investmentInfo = models.ForeignKey(InvestmentInfo, on_delete=models.CASCADE, null=True)
-   created_at = models.DateTimeField(auto_now_add=True, null=True)
-   amount = models.DecimalField(decimal_places=2, max_digits=10, null=True)
-   percentage = fields.IntegerRangeField(min_value=1, max_value=100, null=True)
-   category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True)
-   sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, null=True)
-
-   class Meta:
-      verbose_name = 'Add Market'
-      verbose_name_plural = 'Add Markets'
-
-   def __str__(self):
-      return self.user.username + " " + self.category.name + " " + self.sub_category.name

@@ -1,5 +1,6 @@
 {% extends 'Main/base.html'%}
 {% load static %}
+{% load humanize %}
 {% load main_extras %}
 {% block title%}Home{% endblock%}
 {% block content %}
@@ -12,21 +13,28 @@
 
 </div>
 
-<!-- <div id="container" style="width: 75%;">
-   <canvas id="myCharts" width="300" height="200"></canvas>
-</div> -->
-
-
-<div class='m-5'>
-
-   <h3>Welcome Back, {{user.first_name|title}}!</h3>
-
+<div class="row justify-content-between">
+   <div class="col-6">
+      <h4>Welcome Back, {{user.first_name|title}}!</h4>
+   </div>
+   <div class="col-6">
+      <div class="row justify-content-end">
+         <div class="col">
+            <h4>Availabe: ${{investments.get_total_amount|intcomma}}</h4>
+         </div>
+         <div class="col-auto">
+            <h4>Allocated: ${{investments.available_to_invest|intcomma}}</h4>
+         </div>
+      </div>
+   </div>
 
 </div>
 
+
+
 <div class=" row justify-content-between">
 
-   <div class="col">
+   <div class="col-sm-4">
       <div class="col-md">
          <div class="card text-center text-dark mb-3">
             <div class="card-body">
@@ -38,7 +46,7 @@
 
    </div>
 
-   <div class="col">
+   <div class="col-sm-4">
       <div class="col-md">
          <div class="card text-center text-dark mb-3">
 
@@ -51,7 +59,7 @@
 
    </div>
 
-   <div class="col">
+   <div class="col-sm-4">
       <div class="col-md">
          <div class="card text-center text-dark mb-3">
 
@@ -84,7 +92,7 @@
             {% for saving in savings %}
             <tr>
                <td>{{saving.sub_category}}</td>
-               <td>${{saving.amount}}</td>
+               <td>${{saving.amount|intcomma}}</td>
                <td>{{saving.percentage}}%</td>
                <td>
                   <a href="{% url 'edit_savings_url' saving.id %}" class="btn btn-sm btn-secondary">Edit</a>
@@ -119,7 +127,7 @@
             {% for invest in invest %}
             <tr>
                <td>{{invest.sub_category}}</td>
-               <td>${{invest.amount}}</td>
+               <td>${{invest.amount|intcomma}}</td>
                <td>{{invest.percentage}}%</td>
                <td>
                   <a href="{% url 'edit_investments_url' invest.id %}" class="btn btn-sm btn-secondary">Edit</a>
@@ -155,7 +163,7 @@
             {% for insurance in insurance %}
             <tr>
                <td>{{insurance.sub_category}}</td>
-               <td>${{insurance.amount}}</td>
+               <td>${{insurance.amount|intcomma}}</td>
                <td>{{insurance.percentage}}%</td>
                <td>
                   <a href="{% url 'edit_insurances_url' insurance.id %}" class="btn btn-sm btn-secondary">Edit</a>
@@ -179,7 +187,7 @@
          <div class="card text-center text-dark mb-3">
 
             <div class="card-body">
-               <h2 class="card-title">Welcome Back, {{user.first_name|title}}!</h2>
+               <h4 class="card-title">Welcome Back, {{user.first_name|title}}!</h4>
                <p class="mb-0">Investment Dashboard</p>
             </div>
          </div>
@@ -227,8 +235,8 @@
       $('.collapse.in').collapse('hide');
    });
 </script>
-<script src="{% static 'js/piechart.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
 <script>
 
    $(function () {
@@ -236,47 +244,87 @@
       var $pieChart = $("#pie-chart");
       var $bucketChart = $("#bucket-chart");
       var $marketChart = $("#market-chart");
+      Chart.defaults.global.legend.labels.usePointStyle = true;
+
+      var defaultLegendClickHandler = Chart.defaults.global.legend.onClick;
+      var pointBackgroundColors = [];
+
+
+      var newLegendClickHandler = function (e, legendItem) {
+         var index = legendItem.datasetIndex;
+         if (index > 1) {
+            defaultLegendClickHandler(e, legendItem);
+         } else {
+            let ci = this.chart;
+            [
+               ci.getDatasetMeta(0),
+               ci.getDatasetMeta(1)
+            ].forEach(function (meta) {
+               meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+            });
+            ci.update();
+         }
+      };
+
+
       $.ajax({
          url: $pieChart.data("url"),
          success: function (data) {
 
             var ctx = $pieChart[0].getContext("2d");
 
+
+
             new Chart(ctx, {
-               type: 'pie',
+               type: 'doughnut',
                data: {
                   labels: data.labels,
                   datasets: [{
                      label: 'Income',
-                     backgroundColor: ['rgba(255, 0, 0)',
-                        'rgb(0, 0, 255)',
-                        'rgb(0, 255, 0)',
-                        'rgba(75, 192, 192)',
-                        'rgba(153, 102, 255)',
-                        'rgba(255, 159, 64)',
-                        'rgb(123, 23, 133)',
-                        'rgb(55, 92, 90)',
-                        'rgba(11, 22, 112)',
-                        'rgba(153, 102, 255)',
-                        'rgba(122, 25, 4)'],
+                     backgroundColor: [
+
+                        'rgba(173,175,241)',
+                        'rgba(83,84,141)',
+                        'rgb(27,28,47)',
+                     ],
+
                      data: data.data
                   }]
                },
                options: {
                   responsive: true,
                   legend: {
-                     display: false,
-                     position: 'bottom',
+                     display: true,
+                     position: 'right',
+
                   },
                   title: {
                      display: false,
                      text: 'Expenses/Availabe/Allocated'
+                  },
+                  tooltips: {
+                     callbacks: {
+
+                        label: function (tooltipItem, data) {
+                           return data.labels[tooltipItem.index] + ': $' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        }
+                     }
+                  },
+                  pieceLabel: {
+                     mode: 'value'
+                  },
+                  plugins: {
+                     labels: {
+                        render: 'data'
+                     }
                   }
+
                }
             });
 
          }
       });
+
 
 
       $.ajax({
@@ -286,35 +334,39 @@
             var ctx = $bucketChart[0].getContext("2d");
 
             new Chart(ctx, {
-               type: 'pie',
+               type: 'doughnut',
                data: {
                   labels: data.labels,
                   datasets: [{
                      label: 'Income',
-                     backgroundColor: ['rgba(255, 0, 0)',
-                        'rgb(0, 0, 255)',
-                        'rgb(0, 255, 0)',
-                        'rgba(75, 192, 192)',
-                        'rgba(153, 102, 255)',
-                        'rgba(255, 159, 64)',
-                        'rgb(123, 23, 133)',
-                        'rgb(55, 92, 90)',
-                        'rgba(11, 22, 112)',
-                        'rgba(153, 102, 255)',
-                        'rgba(122, 25, 4)'],
+                     backgroundColor: [
+
+                        'rgba(173,175,241)',
+                        'rgba(83,84,141)',
+                        'rgb(27,28,47)',
+
+                     ],
                      data: data.data
                   }]
                },
                options: {
                   responsive: true,
                   legend: {
-                     display: false,
-                     position: 'bottom',
+                     display: true,
+                     position: 'right',
                   },
                   title: {
                      display: false,
                      text: 'Allocation By Buckets'
-                  }
+                  },
+                  tooltips: {
+                     callbacks: {
+
+                        label: function (tooltipItem, data) {
+                           return data.labels[tooltipItem.index] + ': $' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        }
+                     }
+                  },
                }
             });
 
@@ -328,36 +380,50 @@
 
             var ctx = $marketChart[0].getContext("2d");
 
-            new Chart(ctx, {
-               type: 'pie',
+            chart = new Chart(ctx, {
+               type: 'doughnut',
                data: {
                   labels: data.labels,
                   datasets: [{
                      label: 'Income',
-                     backgroundColor: ['rgba(255, 0, 0)',
-                        'rgb(0, 0, 255)',
-                        'rgb(0, 100, 255)',
-                        'rgba(75, 192, 192)',
-                        'rgba(153, 102, 255)',
-                        'rgba(255, 159, 64)',
-                        'rgb(123, 23, 133)',
-                        'rgb(55, 92, 90)',
-                        'rgba(11, 22, 112)',
-                        'rgba(153, 102, 255)',
-                        'rgba(122, 25, 4)'],
+                     backgroundColor: [
+
+                        'rgba(173,175,241)',
+                        'rgb(139,141,236)',
+                        'rgb(125,126,212)',
+                        'rgb(111,112,188)',
+                        'rgba(97,98,165)',
+                        'rgba(83,84,141)',
+                        'rgb(69,70,118)',
+                        'rgb(55,56,94)',
+                        'rgb(41,42,70)',
+                        'rgb(27,28,47)',
+                        'rgb(13,14,23)',
+                     ],
                      data: data.data
                   }]
                },
                options: {
                   responsive: true,
                   legend: {
-                     display: false,
-                     position: 'bottom',
+                     display: true,
+                     position: 'right',
+                     labels: {
+
+                     }
                   },
                   title: {
                      display: false,
                      text: 'Markets'
-                  }
+                  },
+                  tooltips: {
+                     callbacks: {
+
+                        label: function (tooltipItem, data) {
+                           return data.labels[tooltipItem.index] + ': $' + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        }
+                     }
+                  },
                }
             });
 
