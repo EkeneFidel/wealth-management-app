@@ -40,6 +40,7 @@
             <div class="card-body">
                <h5 class="bold">Expenses/Available/Allocated</h5>
                <canvas id="pie-chart" data-url="{% url 'pie_chart' %}"></canvas>
+               <div id="legend1"></div>
             </div>
          </div>
       </div>
@@ -53,6 +54,7 @@
             <div class="card-body">
                <h5 class="bold">Allocation By Buckets</h5>
                <canvas id="bucket-chart" data-url="{% url 'bucket_pie_chart' %}"></canvas>
+               <div id="legend2"></div>
             </div>
          </div>
       </div>
@@ -65,8 +67,14 @@
 
             <div class="card-body">
                <h5 class="bold">Allocation By Markets</h5>
-               <canvas id="market-chart" data-url="{% url 'market_pie_chart' %}"></canvas>
+               <div class="chart-container">
+                  <canvas id="market-chart" data-url="{% url 'market_pie_chart' %}" width=200></canvas>
+                  <div id="legend"></div>
+               </div>
+
+
             </div>
+
          </div>
       </div>
 
@@ -246,36 +254,30 @@
       var $marketChart = $("#market-chart");
       Chart.defaults.global.legend.labels.usePointStyle = true;
 
-      var defaultLegendClickHandler = Chart.defaults.global.legend.onClick;
-      var pointBackgroundColors = [];
-
-
-      var newLegendClickHandler = function (e, legendItem) {
-         var index = legendItem.datasetIndex;
-         if (index > 1) {
-            defaultLegendClickHandler(e, legendItem);
-         } else {
-            let ci = this.chart;
-            [
-               ci.getDatasetMeta(0),
-               ci.getDatasetMeta(1)
-            ].forEach(function (meta) {
-               meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-            });
-            ci.update();
-         }
-      };
-
-
       $.ajax({
          url: $pieChart.data("url"),
          success: function (data) {
 
             var ctx = $pieChart[0].getContext("2d");
+            updateDataset1 = function (e, datasetIndex) {
+               var index = datasetIndex;
+               var ci = e.view.piechart;
+               var meta = ci.getDatasetMeta(0);
+
+               var result = (meta.data[datasetIndex].hidden == true) ? false : true;
+               if (result == true) {
+                  meta.data[datasetIndex].hidden = true;
+                  $('#' + e.path[0].id).css("text-decoration", "line-through");
+               } else {
+                  $('#' + e.path[0].id).css("text-decoration", "");
+                  meta.data[datasetIndex].hidden = false;
+               }
+
+               ci.update();
+            }
 
 
-
-            new Chart(ctx, {
+            window.piechart = new Chart(ctx, {
                type: 'doughnut',
                data: {
                   labels: data.labels,
@@ -293,11 +295,30 @@
                },
                options: {
                   responsive: true,
-                  legend: {
-                     display: true,
-                     position: 'right',
+                  legend: false,
+                  display: false,
+                  legendCallback: function (piechart) {
+                     // Return the HTML string here.
+                     console.log(piechart.data.datasets);
+                     var text = [];
+
+                     text.push('<ul style="list-style-type:none; position: absolute; right: 30px; top: 110px; font-size: 12px; display:block;" class="legend1-' + piechart.id + '" ></span>');
+                     for (var i = 0; i < piechart.data.datasets[0].data.length; i++) {
+                        if (text.length >= 10) {
+                           break
+                        }
+                        text.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="arr-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + piechart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset1(event, ' + '\'' + i + '\'' + ')"></span>');
+                        if (piechart.data.labels[i]) {
+                           text.push(piechart.data.labels[i]);
+                        }
+                        text.push('</li>');
+                     }
+                     text.push('</ul>');
+                     return text.join("");
 
                   },
+
+
                   title: {
                      display: false,
                      text: 'Expenses/Availabe/Allocated'
@@ -321,6 +342,7 @@
 
                }
             });
+            document.getElementById("legend1").innerHTML = piechart.generateLegend();
 
          }
       });
@@ -332,8 +354,25 @@
          success: function (data) {
 
             var ctx = $bucketChart[0].getContext("2d");
+            updateDataset2 = function (e, datasetIndex) {
+               var index = datasetIndex;
+               var ci = e.view.mychart;
+               var meta = ci.getDatasetMeta(0);
+               console.log(meta)
 
-            new Chart(ctx, {
+               var result = (meta.data[datasetIndex].hidden == true) ? false : true;
+               if (result == true) {
+                  meta.data[datasetIndex].hidden = true;
+                  $('#' + e.path[0].id).css("text-decoration", "line-through");
+               } else {
+                  $('#' + e.path[0].id).css("text-decoration", "");
+                  meta.data[datasetIndex].hidden = false;
+               }
+
+               ci.update();
+            }
+
+            window.mychart = new Chart(ctx, {
                type: 'doughnut',
                data: {
                   labels: data.labels,
@@ -351,9 +390,28 @@
                },
                options: {
                   responsive: true,
-                  legend: {
-                     display: true,
-                     position: 'right',
+                  legend: false,
+                  display: false,
+                  legendCallback: function (mychart) {
+                     // Return the HTML string here.
+                     console.log(mychart.data.datasets);
+                     var vat = [];
+
+                     vat.push('<ul style="list-style-position: outside; list-style-type:none; position: absolute; right: 20px; top: 110px; font-size: 12px; display:block;" class="legend2-' + mychart.id + '" ></span>');
+                     for (var i = 0; i < mychart.data.datasets[0].data.length; i++) {
+                        if (vat.length >= 10) {
+                           break
+                        }
+                        vat.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="arr-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + mychart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset2(event, ' + '\'' + i + '\'' + ')"></span>');
+                        if (mychart.data.labels[i]) {
+                           vat.push(mychart.data.labels[i]);
+                        }
+                        vat.push('</li>');
+                     }
+                     vat.push('</ul>');
+                     console.log(vat)
+                     return vat.join("");
+
                   },
                   title: {
                      display: false,
@@ -369,8 +427,9 @@
                   },
                }
             });
-
+            document.getElementById("legend2").innerHTML = mychart.generateLegend();
          }
+
       });
 
 
@@ -379,8 +438,43 @@
          success: function (data) {
 
             var ctx = $marketChart[0].getContext("2d");
+            updateDataset = function (e, datasetIndex) {
+               var index = datasetIndex;
+               var ci = e.view.chart;
+               var meta = ci.getDatasetMeta(0);
 
-            chart = new Chart(ctx, {
+
+
+               if (index == ci.data.datasets[0].data.length) {
+                  var ul = document.querySelectorAll(`.legend-${ci.id}`)
+                  ul.forEach(func);
+                  function func(value) {
+                     if (value.style.display == "block") {
+                        value.style.display = "none";
+                     } else {
+                        value.style.display = "block";
+                     }
+                  }
+
+               } else {
+                  var result = (meta.data[datasetIndex].hidden == true) ? false : true;
+                  console.log(e.view)
+                  if (result == true) {
+                     meta.data[datasetIndex].hidden = true;
+                     $('#' + e.path[0].id).css("text-decoration", "line-through");
+                  } else {
+                     $('#' + e.path[0].id).css("text-decoration", "");
+                     meta.data[datasetIndex].hidden = false;
+                  }
+
+                  ci.update();
+               }
+
+
+
+            }
+
+            window.chart = new Chart(ctx, {
                type: 'doughnut',
                data: {
                   labels: data.labels,
@@ -405,12 +499,49 @@
                },
                options: {
                   responsive: true,
-                  legend: {
-                     display: true,
-                     position: 'right',
-                     labels: {
+                  legend: false,
+                  legendCallback: function (chart) {
+                     // Return the HTML string here.
 
+                     var text = [];
+                     var more = [];
+
+                     text.push('<ul style="list-style-position: outside; list-style-type:none; position: absolute; right: 3px; top: 110px; font-size: 12px; display:block;" class="legend-' + chart.id + '" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                     for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
+                        if (text.length >= 16) {
+                           console.log(text)
+                           break
+                        }
+                        text.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + chart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                        if (chart.data.labels[i]) {
+                           text.push(chart.data.labels[i]);
+                        }
+                        text.push('</li>');
                      }
+
+                     more.push('<ul style="list-style-position: outside; list-style-type:none; position: absolute; right: 20px; top: 110px; font-size: 12px; display:none;" class="legend-' + chart.id + '">');
+                     for (var i = 5; i < chart.data.datasets[0].data.length; i++) {
+                        more.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + chart.data.datasets[0].backgroundColor[i] + '"  onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                        if (chart.data.labels[i]) {
+                           more.push(chart.data.labels[i]);
+                        }
+                        more.push('</li>');
+                     }
+
+                     text.push('</ul>');
+                     more.push('</ul>');
+                     together = text.concat(more)
+
+                     other = []
+                     other.push('<ul style=" list-style-position: outside; list-style-type:none; position: absolute; right: 55px; top: 220px; font-size: 12px; display:block">');
+                     var i = chart.data.datasets[0].data.length
+                     other.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:black"   onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                     other.push('Others')
+                     other.push('</li>');
+                     other.push('</ul>');
+
+                     together = together.concat(other)
+                     return together.join("");
                   },
                   title: {
                      display: false,
@@ -426,11 +557,15 @@
                   },
                }
             });
+            legend.innerHTML = chart.generateLegend();
+
+
 
          }
       });
 
    });
+
 
 </script>
 

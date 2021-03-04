@@ -1,6 +1,8 @@
 from django.urls import path
 from django.conf.urls import re_path, url
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.indexView, name='index_url'),
@@ -23,4 +25,4 @@ urlpatterns = [
     path('pie-chart', views.pie_chart, name='pie_chart'),
     path('bucket-pie-chart', views.bucket_pie_chart, name='bucket_pie_chart'),
     path('market-pie-chart', views.market_pie_chart, name='market_pie_chart'),
-    ]
+    ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
