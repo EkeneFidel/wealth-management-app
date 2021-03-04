@@ -317,7 +317,7 @@
                      console.log(piechart.data.datasets);
                      var text = [];
 
-                     text.push('<ul style="list-style-type:none; font-size: 12px; display:block;" class="legend1-' + piechart.id + '" ></span>');
+                     text.push('<ul style="list-style-type:none; font-size: 8px; display:block;" class="legend1-' + piechart.id + '" ></span>');
                      for (var i = 0; i < piechart.data.datasets[0].data.length; i++) {
                         if (text.length >= 10) {
                            break
@@ -412,7 +412,7 @@
                      console.log(mychart.data.datasets);
                      var vat = [];
 
-                     vat.push('<ul style="list-style-type:none; font-size: 12px; display:block;" class="legend2-' + mychart.id + '" ></span>');
+                     vat.push('<ul style="list-style-type:none; font-size: 8px; display:block;" class="legend2-' + mychart.id + '" ></span>');
                      for (var i = 0; i < mychart.data.datasets[0].data.length; i++) {
                         if (vat.length >= 10) {
                            break
@@ -521,7 +521,7 @@
                      var text = [];
                      var more = [];
 
-                     text.push('<ul style=" list-style-type:none; font-size: 12px; display:block;" class="legend-' + chart.id + '" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                     text.push('<ul style=" list-style-type:none; font-size: 8px; display:block;" class="legend-' + chart.id + '" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
                      for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
                         if (text.length >= 16) {
                            console.log(text)
@@ -534,7 +534,7 @@
                         text.push('</li>');
                      }
 
-                     more.push('<ul style=" list-style-type:none; font-size: 12px; display:none;" class="legend-' + chart.id + '">');
+                     more.push('<ul style=" list-style-type:none; font-size: 8px; display:none;" class="legend-' + chart.id + '">');
                      for (var i = 5; i < chart.data.datasets[0].data.length; i++) {
                         more.push('<li style="display: flex;  margin-bottom: 4px;  align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + chart.data.datasets[0].backgroundColor[i] + '"  onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
                         if (chart.data.labels[i]) {
@@ -548,7 +548,7 @@
                      together = text.concat(more)
 
                      other = []
-                     other.push('<ul style="list-style-type:none; font-size: 12px; display:block">');
+                     other.push('<ul style="list-style-type:none; font-size: 8px; display:block">');
                      var i = chart.data.datasets[0].data.length
                      other.push('<li style="display: flex; margin-bottom: 4px; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:black"   onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
                      other.push('Others')
