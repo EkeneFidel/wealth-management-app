@@ -37,49 +37,64 @@
    <div class="col-sm-4">
       <div class="col-md">
          <div class="card text-center text-dark mb-3">
-            <div class="card-body">
+            <div class="card-body ">
                <h5 class="bold">Expenses/Available/Allocated</h5>
-               <canvas id="pie-chart" data-url="{% url 'pie_chart' %}"></canvas>
-               <div id="legend1"></div>
-            </div>
-         </div>
-      </div>
-
-   </div>
-
-   <div class="col-sm-4">
-      <div class="col-md">
-         <div class="card text-center text-dark mb-3">
-
-            <div class="card-body">
-               <h5 class="bold">Allocation By Buckets</h5>
-               <canvas id="bucket-chart" data-url="{% url 'bucket_pie_chart' %}"></canvas>
-               <div id="legend2"></div>
-            </div>
-         </div>
-      </div>
-
-   </div>
-
-   <div class="col-sm-4">
-      <div class="col-md">
-         <div class="card text-center text-dark mb-3">
-
-            <div class="card-body">
-               <h5 class="bold">Allocation By Markets</h5>
-               <div class="chart-container">
-                  <canvas id="market-chart" data-url="{% url 'market_pie_chart' %}" width=200></canvas>
-                  <div id="legend"></div>
+               <div class="canvas-con"
+                  style="display: flex; align-items:center; justify-content: center;  min-height: 200px; position: relative; ">
+                  <div class="canvas-con-inner" style="height:100%; display: inline-block;">
+                     <canvas id="pie-chart" data-url="{% url 'pie_chart' %}"></canvas>
+                  </div>
+                  <div class="legend-con" id="legend1" style="display: inline-block; position: absolute; right: 0px;">
+                  </div>
                </div>
 
 
             </div>
-
          </div>
       </div>
 
    </div>
 
+   <div class="col-sm-4">
+      <div class="col-md">
+         <div class="card text-center text-dark mb-3">
+            <div class="card-body">
+               <h5 class="bold">Allocation By Buckets</h5>
+               <div class="canvas-con"
+                  style="display: flex; align-items:center; justify-content: center;  min-height: 200px; position: relative; ">
+                  <div class="canvas-con-inner" style="height:100%; display: inline-block; ">
+                     <canvas id="bucket-chart" data-url="{% url 'bucket_pie_chart' %}"></canvas>
+                  </div>
+                  <div class="legend-con" id="legend2" style="display: inline-block; position: absolute; right:0px;">
+                  </div>
+               </div>
+
+
+            </div>
+         </div>
+      </div>
+
+   </div>
+
+   <div class="col-sm-4">
+      <div class="col-md">
+         <div class="card text-center text-dark mb-3">
+            <div class="card-body">
+               <h5 class="bold">Allocation By Markets</h5>
+               <div class="canvas-con"
+                  style="display: flex; align-items:center; justify-content: center;  min-height: 200px; position: relative; ">
+                  <div class="canvas-con-inner" style="height:100%; display: inline-block;">
+                     <canvas id="market-chart" data-url="{% url 'market_pie_chart' %}"></canvas>
+                  </div>
+                  <div class="legend-con" id="legend" style="display: inline-block; position: absolute; right:0px;">
+                  </div>
+               </div>
+
+
+            </div>
+         </div>
+      </div>
+   </div>
 </div>
 
 {% if savings %}
@@ -302,12 +317,12 @@
                      console.log(piechart.data.datasets);
                      var text = [];
 
-                     text.push('<ul style="list-style-type:none; position: absolute; right: 30px; top: 110px; font-size: 12px; display:block;" class="legend1-' + piechart.id + '" ></span>');
+                     text.push('<ul style="list-style-type:none; font-size: 12px; display:block;" class="legend1-' + piechart.id + '" ></span>');
                      for (var i = 0; i < piechart.data.datasets[0].data.length; i++) {
                         if (text.length >= 10) {
                            break
                         }
-                        text.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="arr-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + piechart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset1(event, ' + '\'' + i + '\'' + ')"></span>');
+                        text.push('<li style="display: flex; margin-bottom: 4px; left:100px; align-items: center;"><span id="arr-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + piechart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset1(event, ' + '\'' + i + '\'' + ')"></span>');
                         if (piechart.data.labels[i]) {
                            text.push(piechart.data.labels[i]);
                         }
@@ -397,12 +412,12 @@
                      console.log(mychart.data.datasets);
                      var vat = [];
 
-                     vat.push('<ul style="list-style-position: outside; list-style-type:none; position: absolute; right: 20px; top: 110px; font-size: 12px; display:block;" class="legend2-' + mychart.id + '" ></span>');
+                     vat.push('<ul style="list-style-type:none; font-size: 12px; display:block;" class="legend2-' + mychart.id + '" ></span>');
                      for (var i = 0; i < mychart.data.datasets[0].data.length; i++) {
                         if (vat.length >= 10) {
                            break
                         }
-                        vat.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="arr-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + mychart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset2(event, ' + '\'' + i + '\'' + ')"></span>');
+                        vat.push('<li style="display: flex; margin-bottom: 4px; align-items: center;"><span id="arr-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + mychart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset2(event, ' + '\'' + i + '\'' + ')"></span>');
                         if (mychart.data.labels[i]) {
                            vat.push(mychart.data.labels[i]);
                         }
@@ -506,22 +521,22 @@
                      var text = [];
                      var more = [];
 
-                     text.push('<ul style="list-style-position: outside; list-style-type:none; position: absolute; right: 3px; top: 110px; font-size: 12px; display:block;" class="legend-' + chart.id + '" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                     text.push('<ul style=" list-style-type:none; font-size: 12px; display:block;" class="legend-' + chart.id + '" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
                      for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
                         if (text.length >= 16) {
                            console.log(text)
                            break
                         }
-                        text.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + chart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                        text.push('<li style="display: flex;  margin-bottom: 4px; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + chart.data.datasets[0].backgroundColor[i] + '" onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
                         if (chart.data.labels[i]) {
                            text.push(chart.data.labels[i]);
                         }
                         text.push('</li>');
                      }
 
-                     more.push('<ul style="list-style-position: outside; list-style-type:none; position: absolute; right: 20px; top: 110px; font-size: 12px; display:none;" class="legend-' + chart.id + '">');
+                     more.push('<ul style=" list-style-type:none; font-size: 12px; display:none;" class="legend-' + chart.id + '">');
                      for (var i = 5; i < chart.data.datasets[0].data.length; i++) {
-                        more.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + chart.data.datasets[0].backgroundColor[i] + '"  onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                        more.push('<li style="display: flex;  margin-bottom: 4px;  align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:' + chart.data.datasets[0].backgroundColor[i] + '"  onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
                         if (chart.data.labels[i]) {
                            more.push(chart.data.labels[i]);
                         }
@@ -533,9 +548,9 @@
                      together = text.concat(more)
 
                      other = []
-                     other.push('<ul style=" list-style-position: outside; list-style-type:none; position: absolute; right: 55px; top: 220px; font-size: 12px; display:block">');
+                     other.push('<ul style="list-style-type:none; font-size: 12px; display:block">');
                      var i = chart.data.datasets[0].data.length
-                     other.push('<li style="display: flex; flex-direction: row; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:black"   onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
+                     other.push('<li style="display: flex; margin-bottom: 4px; align-items: center;"><span id="legend-' + i + '-item" style="display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius:50%; background-color:black"   onclick="updateDataset(event, ' + '\'' + i + '\'' + ')"></span>');
                      other.push('Others')
                      other.push('</li>');
                      other.push('</ul>');
